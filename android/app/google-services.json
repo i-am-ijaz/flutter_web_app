@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "217348332304",
+    "project_id": "film-planner-db",
+    "storage_bucket": "film-planner-db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217348332304:android:240f63d6da21e3287c6395",
+        "android_client_info": {
+          "package_name": "com.example.web_duplicate_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMnz0KSAHcYVF7ZEKS7PZyfcPLLNqvC_8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
