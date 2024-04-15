@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/calendar/v3.dart';
@@ -17,19 +16,22 @@ class GoogleCalendarService {
         clientId: _clienID,
         scopes: <String>[
           CalendarApi.calendarScope,
-          CalendarApi.calendarEventsScope,
         ],
       ).signIn();
 
       if (googleSignIn == null) return;
-      final authHeaders = await googleSignIn.authHeaders;
-      print(authHeaders);
+      // final authHeaders = await googleSignIn.authHeaders;
+      // print(authHeaders);
+      final GoogleAPIClient httpClient =
+          GoogleAPIClient(await googleSignIn.authHeaders);
 
-      var calendar = CalendarApi(
-        GoogleAPIClient(authHeaders),
-      );
+      final CalendarApi calendarApi = CalendarApi(httpClient);
+
+      // var calendar = CalendarApi(
+      //   GoogleAPIClient(authHeaders),
+      // );
       String calendarId = "primary";
-      final createdEvent = await calendar.events.insert(event, calendarId);
+      final createdEvent = await calendarApi.events.insert(event, calendarId);
       print(createdEvent);
     } catch (e) {
       print(e);

@@ -1,17 +1,24 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+
 import 'package:web_duplicate_app/components/alerts.dart';
 import 'package:web_duplicate_app/components/custom_button.dart';
-import 'package:web_duplicate_app/components/snackbarMessage.dart';
-import 'package:web_duplicate_app/screens/project/components/custom_checkbox.dart';
 import 'package:web_duplicate_app/components/custom_dropdown.dart';
-import 'package:web_duplicate_app/screens/project/components/frame_counter.dart';
+import 'package:web_duplicate_app/components/snackbarMessage.dart';
 import 'package:web_duplicate_app/components/text_widget.dart';
 import 'package:web_duplicate_app/constants.dart';
+import 'package:web_duplicate_app/extensions.dart';
 import 'package:web_duplicate_app/models/frame.dart';
+import 'package:web_duplicate_app/screens/project/components/custom_checkbox.dart';
+import 'package:web_duplicate_app/screens/project/components/frame_counter.dart';
 import 'package:web_duplicate_app/screens/project/components/scriptInfoExpansionPanel.dart';
 import 'package:web_duplicate_app/services/frame.dart';
 import 'package:web_duplicate_app/services/project.dart';
@@ -40,9 +47,13 @@ class _FrameComponentState extends State<FrameComponent> {
 
   DropzoneViewController? _dropzoneController;
 
+  int _currentImageIndex = 1;
+  PageController? _pageController;
+
   @override
   void initState() {
     super.initState();
+    _pageController = PageController();
   }
 
   togglePanelHeight() {
@@ -50,7 +61,17 @@ class _FrameComponentState extends State<FrameComponent> {
     setState(() {});
   }
 
-  Future<void> _showDeleteDialogWarning(BuildContext context) async {
+  @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _showDeleteDialogWarning(
+    BuildContext context, {
+    bool isDeletingFrame = true,
+    VoidCallback? onPressed,
+  }) async {
     return showDialog(
       context: context,
       builder: (context) {
@@ -64,9 +85,11 @@ class _FrameComponentState extends State<FrameComponent> {
             ),
             content: Container(
               constraints: const BoxConstraints(maxWidth: 400),
-              child: const Text(
-                'Are you sure you want to delete this frame and all its related data, including images, texts, and comments? Pressing "OK" will permanently remove everything. This action cannot be undone.',
-                style: TextStyle(
+              child: Text(
+                isDeletingFrame
+                    ? 'Are you sure you want to delete this frame and all its related data, including images, texts, and comments? Pressing "OK" will permanently remove everything. This action cannot be undone.'
+                    : 'Are you sure you want to delete this image?',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 13,
                 ),
@@ -83,18 +106,7 @@ class _FrameComponentState extends State<FrameComponent> {
                 ),
               ),
               TextButton(
-                onPressed: () {
-                  frameService.deleteFrame(
-                    widget.projectID,
-                    widget.frameModel.id,
-                  );
-
-                  Navigator.pop(context);
-                  snackbarMessage(
-                    message: 'Frame deleted successfully.',
-                    context: context,
-                  );
-                },
+                onPressed: onPressed,
                 child: const Text(
                   'OK',
                   style: TextStyle(color: Colors.white),
@@ -186,7 +198,21 @@ class _FrameComponentState extends State<FrameComponent> {
               left: 505,
               child: InkWell(
                 onTap: () {
-                  _showDeleteDialogWarning(context);
+                  _showDeleteDialogWarning(
+                    context,
+                    onPressed: () {
+                      frameService.deleteFrame(
+                        widget.projectID,
+                        widget.frameModel.id,
+                      );
+
+                      Navigator.pop(context);
+                      snackbarMessage(
+                        message: 'Frame deleted successfully.',
+                        context: context,
+                      );
+                    },
+                  );
                 },
                 child: Container(
                   height: 22,
@@ -280,6 +306,7 @@ class _FrameComponentState extends State<FrameComponent> {
   }
 
   Widget sketchImagesSection() {
+    final images = widget.frameModel.sceneInformation?.images;
     return Container(
       height: 280,
       decoration: BoxDecoration(
@@ -298,10 +325,25 @@ class _FrameComponentState extends State<FrameComponent> {
               child: Container(
                 color: Colors.transparent,
                 alignment: Alignment.center,
-                child: _image != null
-                    ? Image.network(
-                        _image!.path,
-                        fit: BoxFit.cover,
+                child: images?.isNotEmpty ?? false
+                    ? PageView.builder(
+                        controller: _pageController,
+                        itemCount: images!.length,
+                        onPageChanged: (value) {
+                          setState(() {
+                            _currentImageIndex = value + 1;
+                          });
+                        },
+                        itemBuilder: (context, index) {
+                          final image = images[index];
+                          return CachedNetworkImage(
+                            imageUrl: image,
+                            fit: BoxFit.cover,
+                            errorListener: (value) {
+                              print(value);
+                            },
+                          );
+                        },
                       )
                     : Stack(
                         alignment: Alignment.center,
@@ -326,13 +368,22 @@ class _FrameComponentState extends State<FrameComponent> {
                                   ?.getFileLastModified(ev);
 
                               if (path != null) {
-                                setState(() {
-                                  _image = XFile(
-                                    path,
-                                    bytes: data,
-                                    lastModified: lastModified,
-                                  );
-                                });
+                                var image = XFile(
+                                  path,
+                                  bytes: data,
+                                  lastModified: lastModified,
+                                );
+                                _images.add(
+                                  image,
+                                );
+                                if (mounted) {
+                                  context.showLoading();
+                                }
+                                await _uploadImage(image);
+                                if (mounted) {
+                                  context.hideLoading();
+                                }
+                                setState(() {});
                               }
                             },
                             onLeave: () => print('Zone left'),
@@ -389,7 +440,17 @@ class _FrameComponentState extends State<FrameComponent> {
                         },
                       ),
                       const SizedBox(width: defaultPadding / 2),
-                      const ArrowButtons(icon: icLeftAndroidArrow),
+                      ArrowButtons(
+                        icon: icLeftAndroidArrow,
+                        onPressed: () {
+                          _pageController?.previousPage(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                          );
+                          print(_currentImageIndex);
+                          setState(() {});
+                        },
+                      ),
                       const SizedBox(width: 5),
                       Container(
                         decoration: BoxDecoration(
@@ -401,13 +462,73 @@ class _FrameComponentState extends State<FrameComponent> {
                           horizontal: 8,
                           vertical: 4,
                         ),
-                        child: const TextWidget(
-                          text: '1 of 3',
+                        child: TextWidget(
+                          text:
+                              '${(images?.isEmpty ?? false) ? 0 : _currentImageIndex} of ${images?.length}',
                           fontSize: 11,
                         ),
                       ),
                       const SizedBox(width: 5),
-                      const ArrowButtons(icon: icRightAndroidArrow),
+                      ArrowButtons(
+                        icon: icRightAndroidArrow,
+                        onPressed: () {
+                          _pageController?.nextPage(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                          );
+                          print(_currentImageIndex);
+
+                          setState(() {});
+                        },
+                      ),
+                      const SizedBox(width: defaultPadding / 2),
+                      if (images?.isNotEmpty ?? false)
+                        InkWell(
+                          onTap: () {
+                            _showDeleteDialogWarning(
+                              context,
+                              isDeletingFrame: false,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                frameService.deleteImage(
+                                  images![_currentImageIndex - 1],
+                                );
+
+                                final updateImages = images;
+                                if (_currentImageIndex > 1) {
+                                  _currentImageIndex = _currentImageIndex - 1;
+                                }
+                                updateImages.removeAt(_currentImageIndex - 1);
+                                setState(() {
+                                  frameService.updateSceneInformation(
+                                    widget.frameModel.sceneInformation!
+                                        .copyWith(
+                                      images: updateImages,
+                                    ),
+                                    widget.projectID,
+                                    widget.frameModel.id,
+                                  );
+                                });
+                              },
+                            );
+                          },
+                          child: Container(
+                            height: 22,
+                            width: 22,
+                            decoration: BoxDecoration(
+                              color: colorMediumBlue,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: colorLightBlue),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.delete_outline,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        )
                     ],
                   ),
                 ],
@@ -783,14 +904,47 @@ class _FrameComponentState extends State<FrameComponent> {
     );
   }
 
-  XFile? _image;
+  final List<XFile> _images = [];
 
   Future<void> _showImageDialog() async {
     try {
-      _image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+      if (mounted) {
+        context.showLoading();
+      }
+      await _uploadImage(image);
+      if (mounted) {
+        context.hideLoading();
+      }
+      if (image != null) {
+        _pageController?.jumpToPage(_images.length);
+      }
+
       setState(() {});
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future<void> _uploadImage(XFile? image) async {
+    if (image != null) {
+      _images.add(XFile(image.path));
+      final bytes = await image.readAsBytes();
+      if (kIsWeb) {
+        await FrameService().addNewImage(
+          file: null,
+          image: bytes,
+          widget.projectID,
+          widget.frameModel.id,
+        );
+      } else {
+        await FrameService().addNewImage(
+          file: image,
+          widget.projectID,
+          widget.frameModel.id,
+        );
+      }
     }
   }
 }

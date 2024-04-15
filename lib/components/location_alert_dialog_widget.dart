@@ -86,7 +86,7 @@ class _LocationAlertDialogWidgetState extends State<LocationAlertDialogWidget> {
                 _nameController.text,
                 _descriptionController.text,
                 widget.pickedLocationNotifier.value!,
-                selectedLeadTime!,
+                selectedLeadTime ?? const Duration(minutes: 5),
               );
             }
           },
@@ -127,7 +127,7 @@ class _LocationAlertDialogWidgetState extends State<LocationAlertDialogWidget> {
                 _nameController.text,
                 _descriptionController.text,
                 widget.pickedLocationNotifier.value!,
-                selectedLeadTime!,
+                selectedLeadTime ?? const Duration(minutes: 5),
               );
             }
           },
@@ -183,7 +183,7 @@ class _LocationAlertDialogWidgetState extends State<LocationAlertDialogWidget> {
               _nameController.text,
               _descriptionController.text,
               widget.pickedLocationNotifier.value!,
-              selectedLeadTime!,
+              selectedLeadTime ?? const Duration(minutes: 5),
             );
           },
           hint: const Text(
@@ -287,8 +287,9 @@ class _LocationAlertDialogWidgetState extends State<LocationAlertDialogWidget> {
                         Positioned.fill(
                           child: InkWell(
                             onTap: () => launchGoogleMaps(
-                                pickedLocation.latitude,
-                                pickedLocation.longitude),
+                              pickedLocation.latitude,
+                              pickedLocation.longitude,
+                            ),
                           ),
                         )
                       ],

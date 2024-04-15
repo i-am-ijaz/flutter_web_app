@@ -1,7 +1,10 @@
 // ignore_for_file: avoid_print, unused_element
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:web_duplicate_app/models/deadline.dart';
 import 'package:web_duplicate_app/models/frame.dart';
@@ -209,13 +212,18 @@ class FrameService {
   }
 
   Future<void> addNewImage(
-    Uint8List image,
     String projectID,
-    String frameID,
-  ) async {
+    String frameID, {
+    Uint8List? image,
+    XFile? file,
+  }) async {
     try {
       // Upload the image to Firebase storage and get the URL
-      String imageUrl = await uploadImageToFirebaseStorage(image, projectID);
+      String imageUrl = await uploadImageToFirebaseStorage(
+        file: file,
+        image: image,
+        projectID,
+      );
 
       // Append the URL to the images list in sceneInformation
       await _updateFrameData(projectID, frameID, {
@@ -226,17 +234,34 @@ class FrameService {
     }
   }
 
+  Future<void> deleteImage(String imageUrl) async {
+    final reference = FirebaseStorage.instance.refFromURL(imageUrl);
+
+    try {
+      await reference.delete();
+      print('Image deleted successfully!');
+    } on FirebaseException catch (e) {
+      print('Error deleting image: $e');
+      // Handle errors (e.g., show a user-friendly message)
+    }
+  }
+
   Future<String> uploadImageToFirebaseStorage(
-    Uint8List fileBytes,
-    String projectID,
-  ) async {
+    String projectID, {
+    Uint8List? image,
+    XFile? file,
+  }) async {
     try {
       // Generar un ID único para el nombre del archivo
       String fileName = '${projectID}_${DateTime.now().millisecondsSinceEpoch}';
 
       final storageRef = _firebaseStorage.ref().child('images/$fileName');
-      final uploadTask = storageRef.putData(fileBytes);
-
+      UploadTask uploadTask;
+      if (file != null) {
+        uploadTask = storageRef.putFile(File(file.path));
+      } else {
+        uploadTask = storageRef.putData(image!);
+      }
       await uploadTask;
 
       final downloadUrl = await storageRef.getDownloadURL();
@@ -364,8 +389,8 @@ class FrameService {
       await Future.delayed(const Duration(seconds: 2));
 
       // Add new image
-      final sampleImageBytes = Uint8List(0); // Sample image bytes
-      await addNewImage(sampleImageBytes, projectID, createdFrame.id);
+      // final sampleImageBytes = Uint8List(0); // Sample image bytes
+      // await addNewImage(sampleImageBytes, projectID, createdFrame.id);
       print('New image added');
 
       await Future.delayed(const Duration(seconds: 2));

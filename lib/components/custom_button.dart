@@ -156,13 +156,14 @@ class CustomButton extends StatelessWidget {
 }
 
 class ArrowButtons extends StatelessWidget {
-  const ArrowButtons({super.key, required this.icon});
+  const ArrowButtons({super.key, required this.icon, required this.onPressed});
   final String icon;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         backgroundColor: colorMediumBlue,
         side: const BorderSide(color: colorLightBlue),
