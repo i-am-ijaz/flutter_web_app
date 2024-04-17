@@ -14,6 +14,9 @@ class LocationAlertDialogWidget extends StatefulWidget {
     required this.onLocationPicked,
     required this.pickedLocationNotifier,
     required this.onLocationSaved,
+    required this.name,
+    required this.description,
+    required this.remindBefore,
   });
   final ValueNotifier<LatLng?> pickedLocationNotifier;
   final Function(
@@ -22,6 +25,9 @@ class LocationAlertDialogWidget extends StatefulWidget {
     LatLng coordinates,
     Duration leadTime,
   ) onLocationSaved;
+  final String name;
+  final String description;
+  final Duration remindBefore;
 
   @override
   State<LocationAlertDialogWidget> createState() =>
@@ -61,8 +67,10 @@ class _LocationAlertDialogWidgetState extends State<LocationAlertDialogWidget> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _descriptionController = TextEditingController();
+    _nameController = TextEditingController(text: widget.name);
+    _descriptionController = TextEditingController(text: widget.description);
+    selectedLeadTime = widget.remindBefore;
+    print(widget.remindBefore);
   }
 
   @override
@@ -182,7 +190,7 @@ class _LocationAlertDialogWidgetState extends State<LocationAlertDialogWidget> {
             widget.onLocationSaved(
               _nameController.text,
               _descriptionController.text,
-              widget.pickedLocationNotifier.value!,
+              widget.pickedLocationNotifier.value ?? const LatLng(0, 0),
               selectedLeadTime ?? const Duration(minutes: 5),
             );
           },
@@ -233,26 +241,26 @@ class _LocationAlertDialogWidgetState extends State<LocationAlertDialogWidget> {
           ),
         ),
         const SizedBox(height: 12),
-        // Container(
-        //   margin: const EdgeInsets.only(bottom: defaultPadding),
-        //   decoration: BoxDecoration(
-        //     shape: BoxShape.rectangle,
-        //     border: Border.all(
-        //       color: colorSkyBlue,
-        //     ),
-        //   ),
-        //   child: ListTile(
-        //     leading: const Icon(
-        //       Icons.location_on,
-        //       color: Colors.white,
-        //     ),
-        //     title: const Text(
-        //       'Pick a location',
-        //       style: TextStyle(color: Colors.white),
-        //     ),
-        //     onTap: widget.onLocationPicked,
-        //   ),
-        // ),
+        Container(
+          margin: const EdgeInsets.only(bottom: defaultPadding),
+          decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            border: Border.all(
+              color: colorSkyBlue,
+            ),
+          ),
+          child: ListTile(
+            leading: const Icon(
+              Icons.location_on,
+              color: Colors.white,
+            ),
+            title: const Text(
+              'Pick a location',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: widget.onLocationPicked,
+          ),
+        ),
         ValueListenableBuilder<LatLng?>(
             valueListenable: widget.pickedLocationNotifier,
             builder: (context, pickedLocation, child) {
@@ -274,7 +282,7 @@ class _LocationAlertDialogWidgetState extends State<LocationAlertDialogWidget> {
                         GoogleMap(
                           initialCameraPosition: CameraPosition(
                             target: pickedLocation,
-                            zoom: 14,
+                            zoom: 7.0,
                           ),
                           onMapCreated: (GoogleMapController controller) {},
                           markers: {

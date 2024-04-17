@@ -10,6 +10,7 @@ class CustomAlertDialogComponent {
   final String title;
   final Widget content;
 
+
   final Function() onSubmit;
 
   CustomAlertDialogComponent({
@@ -43,20 +44,20 @@ class CustomAlertDialogComponent {
   }
 
   Future<void> requestDate(BuildContext context) async {
-    if (dateNotifier!.value != null) {
-      final DateTime? pickedDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2101),
-        initialEntryMode: DatePickerEntryMode.calendarOnly,
-        builder: (BuildContext context, Widget? child) {
-          return pickerTheme(child: child!);
-        },
-      );
-      if (pickedDate != null) {
-        requestTime(context, initialDate: pickedDate);
-      }
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      builder: (BuildContext context, Widget? child) {
+        return pickerTheme(child: child!);
+      },
+    );
+    if (pickedDate != null) {
+      requestTime(context, initialDate: pickedDate);
+    } else {
+      dateNotifier!.value = null;
     }
   }
 
@@ -108,7 +109,10 @@ class CustomAlertDialogComponent {
                     content,
                     if (dateNotifier != null)
                       InkWell(
-                          onTap: () => requestDate(context),
+                          onTap: () {
+                            print("${dateNotifier!.value}}");
+                            requestDate(context);
+                          },
                           child: Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.rectangle,

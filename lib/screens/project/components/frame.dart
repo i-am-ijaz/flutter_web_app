@@ -440,95 +440,100 @@ class _FrameComponentState extends State<FrameComponent> {
                         },
                       ),
                       const SizedBox(width: defaultPadding / 2),
-                      ArrowButtons(
-                        icon: icLeftAndroidArrow,
-                        onPressed: () {
-                          _pageController?.previousPage(
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
-                          );
-                          print(_currentImageIndex);
-                          setState(() {});
-                        },
-                      ),
-                      const SizedBox(width: 5),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorMediumBlue,
-                          border: Border.all(color: colorLightBlue),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: TextWidget(
-                          text:
-                              '${(images?.isEmpty ?? false) ? 0 : _currentImageIndex} of ${images?.length}',
-                          fontSize: 11,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      ArrowButtons(
-                        icon: icRightAndroidArrow,
-                        onPressed: () {
-                          _pageController?.nextPage(
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
-                          );
-                          print(_currentImageIndex);
-
-                          setState(() {});
-                        },
-                      ),
-                      const SizedBox(width: defaultPadding / 2),
-                      if (images?.isNotEmpty ?? false)
-                        InkWell(
-                          onTap: () {
-                            _showDeleteDialogWarning(
-                              context,
-                              isDeletingFrame: false,
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                frameService.deleteImage(
-                                  images![_currentImageIndex - 1],
-                                );
-
-                                final updateImages = images;
-                                if (_currentImageIndex > 1) {
-                                  _currentImageIndex = _currentImageIndex - 1;
-                                }
-                                updateImages.removeAt(_currentImageIndex - 1);
-                                setState(() {
-                                  frameService.updateSceneInformation(
-                                    widget.frameModel.sceneInformation!
-                                        .copyWith(
-                                      images: updateImages,
-                                    ),
-                                    widget.projectID,
-                                    widget.frameModel.id,
-                                  );
-                                });
-                              },
+                      if (images != null)
+                        ArrowButtons(
+                          icon: icLeftAndroidArrow,
+                          onPressed: () {
+                            _pageController?.previousPage(
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
                             );
+                            print(_currentImageIndex);
+                            setState(() {});
                           },
-                          child: Container(
-                            height: 22,
-                            width: 22,
-                            decoration: BoxDecoration(
-                              color: colorMediumBlue,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: colorLightBlue),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.delete_outline,
-                                color: Colors.white,
-                                size: 16,
+                        ),
+                      if (images != null) const SizedBox(width: 5),
+                      if (images != null)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: colorMediumBlue,
+                            border: Border.all(color: colorLightBlue),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          child: TextWidget(
+                            text:
+                                '${(images.isEmpty ?? false) ? 0 : _currentImageIndex} of ${images.length}',
+                            fontSize: 11,
+                          ),
+                        ),
+                      if (images != null) const SizedBox(width: 5),
+                      if (images != null)
+                        ArrowButtons(
+                          icon: icRightAndroidArrow,
+                          onPressed: () {
+                            _pageController?.nextPage(
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
+                            );
+                            print(_currentImageIndex);
+
+                            setState(() {});
+                          },
+                        ),
+                      if (images != null)
+                        const SizedBox(width: defaultPadding / 2),
+                      if (images != null)
+                        if (images.isNotEmpty ?? false)
+                          InkWell(
+                            onTap: () {
+                              _showDeleteDialogWarning(
+                                context,
+                                isDeletingFrame: false,
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  frameService.deleteImage(
+                                    images[_currentImageIndex - 1],
+                                  );
+
+                                  final updateImages = images;
+                                  if (_currentImageIndex > 1) {
+                                    _currentImageIndex = _currentImageIndex - 1;
+                                  }
+                                  updateImages.removeAt(_currentImageIndex - 1);
+                                  setState(() {
+                                    frameService.updateSceneInformation(
+                                      widget.frameModel.sceneInformation!
+                                          .copyWith(
+                                        images: updateImages,
+                                      ),
+                                      widget.projectID,
+                                      widget.frameModel.id,
+                                    );
+                                  });
+                                },
+                              );
+                            },
+                            child: Container(
+                              height: 22,
+                              width: 22,
+                              decoration: BoxDecoration(
+                                color: colorMediumBlue,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: colorLightBlue),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
                               ),
                             ),
-                          ),
-                        )
+                          )
                     ],
                   ),
                 ],

@@ -132,11 +132,7 @@ class FrameService {
     String frameID,
   ) async {
     await _updateFrameData(projectID, frameID, {
-      'location': {
-        'date': locationModel.date,
-        'locationAddress': locationModel.locationAddress,
-        'appflowyID': locationModel.appflowyID,
-      }
+      'location': locationModel.toJson(),
     });
   }
 
@@ -322,7 +318,6 @@ class FrameService {
       final locationModel = LocationModel(
         date: DateTime.now().toString(),
         locationAddress: 'Sample Address',
-        appflowyID: 'sampleAppflowyID',
       );
       await updateLocation(locationModel, projectID, createdFrame.id);
       print('Location updated');

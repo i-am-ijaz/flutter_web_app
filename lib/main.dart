@@ -62,7 +62,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const ProjectBoardScreen(),
+      home: const ProjectScreen(
+        projectID: 'project',
+      ),
     );
   }
 }

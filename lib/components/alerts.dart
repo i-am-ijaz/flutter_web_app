@@ -1,13 +1,8 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/geocoding.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:googleapis/calendar/v3.dart';
 import 'package:web_duplicate_app/components/custom_alertdialog.dart';
 import 'package:web_duplicate_app/components/location_alert_dialog_widget.dart';
 import 'package:web_duplicate_app/components/snackbarMessage.dart';
@@ -15,7 +10,6 @@ import 'package:web_duplicate_app/constants.dart';
 import 'package:web_duplicate_app/models/frame.dart';
 import 'package:web_duplicate_app/models/location.dart';
 import 'package:web_duplicate_app/services/frame.dart';
-import 'package:web_duplicate_app/services/google_calendar_service.dart';
 
 class AlertsComponent {
   final FrameService frameService = FrameService();
@@ -40,28 +34,38 @@ class AlertsComponent {
     }
     if (frameModel.location?.locationAddress != null) {
       String lat =
-          frameModel.location!.locationAddress.toString().split(', ')[0];
+          frameModel.location!.locationAddress.toString().split(',')[0];
       String long =
-          frameModel.location!.locationAddress.toString().split(', ')[1];
-      LatLng coordinates =
-          LatLng(double.parse(lat.trim()), double.parse(long.trim()));
+          frameModel.location!.locationAddress.toString().split(',')[1];
+      LatLng coordinates = LatLng(
+        double.parse(lat.trim()),
+        double.parse(long.trim()),
+      );
 
       pickedLocationNotifier.value = coordinates;
+    } else {
+      pickedLocationNotifier.value = const LatLng(0, 0);
     }
 
-    String name = '', description = '';
-    Duration remindBefore = Duration.zero;
-    LatLng coordinates = const LatLng(0, 0);
+    String name = frameModel.location?.name ?? '',
+        description = frameModel.location?.description ?? '';
+    Duration remindBefore = frameModel.location == null
+        ? const Duration(minutes: 5)
+        : Duration(minutes: frameModel.location!.remindBefore);
 
     return CustomAlertDialogComponent(
       dateNotifier: dateNotifier,
       title: 'Location',
       content: LocationAlertDialogWidget(
+        name: name,
+        description: description,
+        remindBefore: remindBefore,
         pickedLocationNotifier: pickedLocationNotifier,
-        onLocationSaved: (name, description, location, reminder) async {
-          name = name.trim();
-          description = description.trim();
-          coordinates = location;
+        onLocationSaved:
+            (updateName, updatedDescription, location, reminder) async {
+          name = updateName.trim();
+          description = updatedDescription.trim();
+          pickedLocationNotifier.value = location;
           remindBefore = reminder;
         },
         onLocationPicked: () async {
@@ -104,46 +108,64 @@ class AlertsComponent {
           return;
         }
 
+        if (name.isEmpty) {
+          snackbarMessage(
+            errorMessage: 'Name is required',
+            context: context,
+          );
+          return;
+        }
+
+        if (description.isEmpty) {
+          snackbarMessage(
+            errorMessage: 'Description is required',
+            context: context,
+          );
+          return;
+        }
+
         // TODO: AppFlowyID Here
         await frameService.updateLocation(
           LocationModel(
             date: dateNotifier.value!,
             locationAddress:
                 '${pickedLocationNotifier.value!.latitude}, ${pickedLocationNotifier.value!.longitude}',
-            appflowyID: 'yourAppflowyID',
+            name: name,
+            description: description,
+            remindBefore: remindBefore.inMinutes,
           ),
           projectID,
           frameID,
         );
 
-        try {
-          GoogleCalendarService().insertEvent(
-            Event(
-              start: EventDateTime(
-                date: DateTime.now().add(const Duration(minutes: 30)),
-                dateTime: DateTime.now().add(const Duration(minutes: 30)),
-                timeZone: 'Asia/Karachi',
-              ),
-              attendees: [
-                EventAttendee(
-                  email: 'ijazsharif34@gmail.com',
-                ),
-              ],
-              description: description,
-              reminders: EventReminders(
-                overrides: [
-                  EventReminder(
-                    minutes: remindBefore.inMinutes,
-                  )
-                ],
-              ),
-              summary: name,
-              location: coordinates.toString(),
-            ),
-          );
-        } catch (e) {
-          log(e.toString());
-        }
+        // try {
+        //   GoogleCalendarService().insertEvent(
+        //     Event(
+        //       start: EventDateTime(
+        //         date: DateTime.now().add(const Duration(minutes: 30)),
+        //         dateTime: DateTime.now().add(const Duration(minutes: 30)),
+        //         timeZone: 'Asia/Karachi',
+        //       ),
+        //       attendees: [
+        //         EventAttendee(
+        //           email: 'ijazsharif34@gmail.com',
+        //         ),
+        //       ],
+        //       description: description,
+        //       reminders: EventReminders(
+        //         overrides: [
+        //           EventReminder(
+        //             minutes: remindBefore.inMinutes,
+        //           )
+        //         ],
+        //       ),
+        //       summary: name,
+        //       location: coordinates.toString(),
+        //     ),
+        //   );
+        // } catch (e) {
+        //   log(e.toString());
+        // }
 
         Navigator.of(context).pop();
         snackbarMessage(
