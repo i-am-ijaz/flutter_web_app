@@ -84,6 +84,7 @@ class ProjectService {
 
   Future<Project?> readProject(String projectID) async {
     final doc = await _firestore.collection('projects').doc(projectID).get();
+    print(doc.data());
     return doc.exists ? Project.fromJson(doc.data()!) : null;
   }
 

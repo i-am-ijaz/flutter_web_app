@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:web_duplicate_app/components/email_field.dart.dart';
 import 'package:web_duplicate_app/components/snackbarMessage.dart';
 import 'package:web_duplicate_app/constants.dart';
+import 'package:web_duplicate_app/services/project.dart';
 
 class InviteCollaboratorsDialog extends StatefulWidget {
   const InviteCollaboratorsDialog({
@@ -39,10 +40,10 @@ class InviteCollaboratorsDialogState extends State<InviteCollaboratorsDialog> {
   Future<void> _sendInvitations() async {
     if (_formKey.currentState!.validate()) {
       for (var i = 0; i < _emailControllers.length; i++) {
-        // await ProjectService().inviteUser(
-        //   _emailControllers[i].text,
-        //   widget.projectID,
-        // );
+        await ProjectService().inviteUser(
+          _emailControllers[i].text,
+          widget.projectID,
+        );
       }
 
       if (mounted) {

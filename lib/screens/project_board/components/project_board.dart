@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:web_duplicate_app/constants.dart';
@@ -120,7 +119,7 @@ class _ProjectBoardState extends State<ProjectBoard> {
   Future<void> _fetchProject() async {
     try {
       final date = DateTime.now();
-      final id = DateFormat('dd-MM-yyyy').format(date);
+      const id = 'project';
       final project = await ProjectService().readProject(id);
 
       if (project == null) {

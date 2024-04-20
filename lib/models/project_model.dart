@@ -9,14 +9,21 @@ part 'project_model.g.dart';
 @immutable
 @JsonSerializable(explicitToJson: true)
 class Project {
+  @JsonKey(name: 'projectID')
   final String id;
+  @JsonKey(name: 'projectName')
   final String name;
+  @JsonKey(name: 'projectDescription')
   final String description;
-  final DateTime createdAt;
-  final CounterModel counters;
+  final DateTime? createdAt;
+  final CounterModel? counters;
+  @JsonKey(defaultValue: [])
   final List<String> assignedTo;
+  @JsonKey(defaultValue: [])
   final List<TaskData> todoTasks;
+  @JsonKey(defaultValue: [])
   final List<TaskData> onProcessTasks;
+  @JsonKey(defaultValue: [])
   final List<TaskData> finishedTasks;
 
   const Project({

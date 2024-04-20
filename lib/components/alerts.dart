@@ -49,24 +49,34 @@ class AlertsComponent {
 
     String name = frameModel.location?.name ?? '',
         description = frameModel.location?.description ?? '';
-    Duration remindBefore = frameModel.location == null
-        ? const Duration(minutes: 5)
-        : Duration(minutes: frameModel.location!.remindBefore);
+    List<Duration> remindersBefore = frameModel.location == null
+        ? [const Duration(minutes: 5)]
+        : List.generate(
+            frameModel.location!.remindBefore.length,
+            (index) => Duration(
+              minutes: frameModel.location!.remindBefore[index],
+            ),
+          );
 
     return CustomAlertDialogComponent(
       dateNotifier: dateNotifier,
       title: 'Location',
       content: LocationAlertDialogWidget(
+        projectID: projectID,
         name: name,
         description: description,
-        remindBefore: remindBefore,
+        reminders: remindersBefore,
         pickedLocationNotifier: pickedLocationNotifier,
-        onLocationSaved:
-            (updateName, updatedDescription, location, reminder) async {
+        onLocationSaved: (
+          updateName,
+          updatedDescription,
+          location,
+          reminders,
+        ) async {
           name = updateName.trim();
           description = updatedDescription.trim();
           pickedLocationNotifier.value = location;
-          remindBefore = reminder;
+          remindersBefore = reminders;
         },
         onLocationPicked: () async {
           final Prediction? p = await PlacesAutocomplete.show(
@@ -132,7 +142,10 @@ class AlertsComponent {
                 '${pickedLocationNotifier.value!.latitude}, ${pickedLocationNotifier.value!.longitude}',
             name: name,
             description: description,
-            remindBefore: remindBefore.inMinutes,
+            remindBefore: List.generate(
+              remindersBefore.length,
+              (index) => remindersBefore[index].inMinutes,
+            ),
           ),
           projectID,
           frameID,

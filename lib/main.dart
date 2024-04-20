@@ -9,8 +9,6 @@ import 'package:timezone/browser.dart' as tz;
 import 'package:web_duplicate_app/constants.dart';
 import 'package:web_duplicate_app/firebase_options.dart';
 import 'package:web_duplicate_app/screens/project/project.dart';
-import 'package:web_duplicate_app/screens/project_board/components/project_board.dart';
-import 'package:web_duplicate_app/screens/project_board/project_board_screen.dart';
 import 'package:web_duplicate_app/services/user.dart';
 
 class MyCustomScrollBehavior extends MaterialScrollBehavior {

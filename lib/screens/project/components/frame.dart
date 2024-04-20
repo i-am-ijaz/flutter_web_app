@@ -1,10 +1,8 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
@@ -440,7 +438,7 @@ class _FrameComponentState extends State<FrameComponent> {
                         },
                       ),
                       const SizedBox(width: defaultPadding / 2),
-                      if (images != null)
+                      if (images != null && images.isNotEmpty)
                         ArrowButtons(
                           icon: icLeftAndroidArrow,
                           onPressed: () {
@@ -452,8 +450,9 @@ class _FrameComponentState extends State<FrameComponent> {
                             setState(() {});
                           },
                         ),
-                      if (images != null) const SizedBox(width: 5),
-                      if (images != null)
+                      if (images != null && images.isNotEmpty)
+                        const SizedBox(width: 5),
+                      if (images != null && images.isNotEmpty)
                         Container(
                           decoration: BoxDecoration(
                             color: colorMediumBlue,
@@ -470,8 +469,9 @@ class _FrameComponentState extends State<FrameComponent> {
                             fontSize: 11,
                           ),
                         ),
-                      if (images != null) const SizedBox(width: 5),
-                      if (images != null)
+                      if (images != null && images.isNotEmpty)
+                        const SizedBox(width: 5),
+                      if (images != null && images.isNotEmpty)
                         ArrowButtons(
                           icon: icRightAndroidArrow,
                           onPressed: () {
@@ -484,9 +484,9 @@ class _FrameComponentState extends State<FrameComponent> {
                             setState(() {});
                           },
                         ),
-                      if (images != null)
+                      if (images != null && images.isNotEmpty)
                         const SizedBox(width: defaultPadding / 2),
-                      if (images != null)
+                      if (images != null && images.isNotEmpty)
                         if (images.isNotEmpty ?? false)
                           InkWell(
                             onTap: () {
