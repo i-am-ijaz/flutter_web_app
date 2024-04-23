@@ -115,4 +115,12 @@ class UserService {
       print('Response of loginResponse(): $loginResponse');
     }
   }
+
+  Future<void> logout() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      print(e);
+    }
+  }
 }

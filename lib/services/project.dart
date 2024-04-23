@@ -2,7 +2,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:web_duplicate_app/models/counter.dart';
-import 'package:web_duplicate_app/models/project.dart';
 import 'package:web_duplicate_app/models/project_model.dart';
 import 'package:web_duplicate_app/services/user.dart';
 
@@ -84,11 +83,10 @@ class ProjectService {
 
   Future<Project?> readProject(String projectID) async {
     final doc = await _firestore.collection('projects').doc(projectID).get();
-    print(doc.data());
     return doc.exists ? Project.fromJson(doc.data()!) : null;
   }
 
-  Stream<ProjectModel?> readProjectsSnapshot() async* {
+  Stream<Project?> readProjectsSnapshot() async* {
     final user = await _userService.getCurrentUser();
 
     final projectsSnapshot = _firestore
@@ -101,9 +99,8 @@ class ProjectService {
         .snapshots();
 
     await for (final snapshot in projectsSnapshot) {
-      final projects = snapshot.docs
-          .map((doc) => ProjectModel.fromJson(doc.data()))
-          .toList();
+      final projects =
+          snapshot.docs.map((doc) => Project.fromJson(doc.data())).toList();
       for (final project in projects) {
         yield project;
       }
@@ -112,7 +109,7 @@ class ProjectService {
 
   Future<void> createProject(Project project) async {
     // Admin can create without invitations
-    print(project.assignedTo);
+    // print(project.assignedTo);
     await _firestore.collection('projects').doc(project.id).set(
           project.toJson(),
           SetOptions(merge: true),
@@ -123,14 +120,11 @@ class ProjectService {
     await _firestore.collection('projects').doc(projectID).delete();
   }
 
-  Future<void> updateProject(String projectID, ProjectModel project) async {
-    final updatedData = project
-        .copyWith(
-          projectID: null,
-        )
-        .toJson();
-
-    await _firestore.collection('projects').doc(projectID).update(updatedData);
+  Future<void> updateProject(String projectID, Project project) async {
+    await _firestore
+        .collection('projects')
+        .doc(projectID)
+        .update(project.toJson());
   }
 
   Future<void> exampleUsage() async {

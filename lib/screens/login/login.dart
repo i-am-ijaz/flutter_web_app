@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pulsator/pulsator.dart';
+import 'package:web_duplicate_app/components/snackbarMessage.dart';
+import 'package:web_duplicate_app/screens/project_board/project_board_screen.dart';
+import 'package:web_duplicate_app/services/user.dart';
 
 class LoginScreen extends StatelessWidget {
   // TODO: Modify this screen to be more clearly
@@ -18,7 +21,7 @@ class LoginScreen extends StatelessWidget {
           body: Container(
             decoration: Utils.getGradientBoxDecoration(),
             child: Center(
-              child: _buildLoginContainer(),
+              child: _buildLoginContainer(context),
             ),
           ),
           floatingActionButton: const PulseIcon(
@@ -36,7 +39,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoginContainer() {
+  Widget _buildLoginContainer(BuildContext context) {
     return Container(
       width: 400,
       padding: const EdgeInsets.all(16),
@@ -60,7 +63,7 @@ class LoginScreen extends StatelessWidget {
             obscureText: true,
           ),
           const SizedBox(height: 20),
-          _buildLoginButton(),
+          _buildLoginButton(context),
           const SizedBox(height: 20),
         ],
       ),
@@ -85,9 +88,33 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () async {
+        final res = await UserService().login(
+          email: 'admin@programador123.com',
+          password: 'System616-x64-616',
+        );
+        if (!context.mounted) return;
+        if (res is bool && res == true) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const ProjectBoardScreen()),
+          );
+        } else if (res is bool && res == false) {
+          snackbarMessage(
+            context: context,
+            errorMessage: 'Wrong email or password',
+          );
+        } else {
+          if (res is String) {
+            snackbarMessage(
+              context: context,
+              errorMessage: 'Wrong email or password',
+            );
+          }
+          print(res);
+        }
+      },
       child: Container(
         width: double.infinity,
         height: 45,

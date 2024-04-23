@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:web_duplicate_app/components/text_widget.dart';
 import 'package:web_duplicate_app/constants.dart';
 import 'package:web_duplicate_app/screens/project/components/drawerMenu.dart';
+import 'package:web_duplicate_app/services/user.dart';
 
 class DashboardScreen extends StatelessWidget {
   final String title;
@@ -36,7 +38,9 @@ class DashboardScreen extends StatelessWidget {
                 bottom: 15,
               ),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  UserService().logout();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorSkyBlue,
                   shape: const CircleBorder(),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +9,9 @@ import 'package:timezone/browser.dart' as tz;
 
 import 'package:web_duplicate_app/constants.dart';
 import 'package:web_duplicate_app/firebase_options.dart';
+import 'package:web_duplicate_app/screens/login/login.dart';
 import 'package:web_duplicate_app/screens/project/project.dart';
+import 'package:web_duplicate_app/screens/project_board/project_board_screen.dart';
 import 'package:web_duplicate_app/services/user.dart';
 
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
@@ -60,8 +63,23 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const ProjectScreen(
-        projectID: 'project',
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          if (snapshot.hasData) {
+            return const ProjectBoardScreen();
+          } else {
+            return const LoginScreen();
+          }
+        },
       ),
     );
   }

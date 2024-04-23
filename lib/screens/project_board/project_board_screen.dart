@@ -25,7 +25,7 @@ class _ProjectBoardScreenState extends State<ProjectBoardScreen> {
         backgroundColor: colorDarKBlue,
         body: DashboardScreen(
           backActionEnabled: false,
-          title: 'Project',
+          title: 'Film Planner',
           children: [
             ProjectBoard(),
           ],
@@ -40,18 +40,20 @@ class TextItem extends AppFlowyGroupItem {
   TextItem(this.data);
 
   @override
-  String get id => data.title;
+  String get id => data.id;
 }
 
 enum TaskStatus { todo, onProcess, done }
 
 class TaskData {
+  final String id;
   final String title;
   final String description;
   final DateTime createdAt;
   final TaskStatus status;
 
   const TaskData({
+    required this.id,
     required this.title,
     required this.description,
     required this.createdAt,
@@ -59,12 +61,14 @@ class TaskData {
   });
 
   TaskData copyWith({
+    String? id,
     String? title,
     String? description,
     DateTime? createdAt,
     TaskStatus? status,
   }) {
     return TaskData(
+      id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
@@ -74,6 +78,7 @@ class TaskData {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'id': id,
       'title': title,
       'description': description,
       'createdAt': createdAt.millisecondsSinceEpoch,
@@ -83,6 +88,7 @@ class TaskData {
 
   factory TaskData.fromMap(Map<String, dynamic> map) {
     return TaskData(
+      id: map['id'] as String,
       title: map['title'] as String,
       description: map['description'] as String,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
@@ -97,14 +103,15 @@ class TaskData {
 
   @override
   String toString() {
-    return 'TaskData(title: $title, description: $description, createdAt: $createdAt, status: $status)';
+    return 'TaskData(id: $id, title: $title, description: $description, createdAt: $createdAt, status: $status)';
   }
 
   @override
   bool operator ==(covariant TaskData other) {
     if (identical(this, other)) return true;
 
-    return other.title == title &&
+    return other.id == id &&
+        other.title == title &&
         other.description == description &&
         other.createdAt == createdAt &&
         other.status == status;
@@ -112,7 +119,8 @@ class TaskData {
 
   @override
   int get hashCode {
-    return title.hashCode ^
+    return id.hashCode ^
+        title.hashCode ^
         description.hashCode ^
         createdAt.hashCode ^
         status.hashCode;
