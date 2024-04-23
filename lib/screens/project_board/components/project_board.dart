@@ -62,94 +62,6 @@ class _ProjectBoardState extends State<ProjectBoard> {
     },
   );
 
-  Future<void> _updateData(
-    String fromGroupId,
-    String toGroupId,
-    int fromIndex,
-    int toIndex,
-  ) async {
-    try {
-      if (fromGroupId == group1.id) {
-        final fromGroupController = _controller.getGroupController(fromGroupId);
-        final fromItems = fromGroupController?.groupData.items;
-        final fromUpdatedItems = List<TextItem>.from(fromItems!);
-        _project = _project!.copyWith(
-          todoTasks: fromUpdatedItems.map((e) => e.data).toList(),
-        );
-        await ProjectService().updateProject(
-          _project!.id,
-          _project!,
-        );
-      }
-      if (fromGroupId == group2.id) {
-        final fromGroupController = _controller.getGroupController(fromGroupId);
-        final fromItems = fromGroupController?.groupData.items;
-        final fromUpdatedItems = List<TextItem>.from(fromItems!);
-        _project = _project!.copyWith(
-          onProcessTasks: fromUpdatedItems.map((e) => e.data).toList(),
-        );
-        await ProjectService().updateProject(
-          _project!.id,
-          _project!,
-        );
-      }
-      if (fromGroupId == group3.id) {
-        final fromGroupController = _controller.getGroupController(fromGroupId);
-        final fromItems = fromGroupController?.groupData.items;
-        final fromUpdatedItems = List<TextItem>.from(fromItems!);
-        _project = _project!.copyWith(
-          finishedTasks: fromUpdatedItems.map((e) => e.data).toList(),
-        );
-        await ProjectService().updateProject(
-          _project!.id,
-          _project!,
-        );
-      }
-      if (toGroupId == group3.id) {
-        final toGroupController = _controller.getGroupController(toGroupId);
-        final toItems = toGroupController?.groupData.items;
-        final toUpdatedItems = List<TextItem>.from(toItems!);
-        _project = _project!.copyWith(
-          finishedTasks: toUpdatedItems.map((e) => e.data).toList(),
-        );
-        await ProjectService().updateProject(
-          _project!.id,
-          _project!,
-        );
-      }
-      if (toGroupId == group1.id) {
-        final toGroupController = _controller.getGroupController(toGroupId);
-        final toItems = toGroupController?.groupData.items;
-        final toUpdatedItems = List<TextItem>.from(toItems!);
-
-        _project = _project!.copyWith(
-          todoTasks: toUpdatedItems.map((e) => e.data).toList(),
-        );
-
-        await ProjectService().updateProject(
-          _project!.id,
-          _project!,
-        );
-      }
-      if (toGroupId == group2.id) {
-        final toGroupController = _controller.getGroupController(toGroupId);
-        final toItems = toGroupController?.groupData.items;
-        final toUpdatedItems = List<TextItem>.from(toItems!);
-
-        _project = _project!.copyWith(
-          onProcessTasks: toUpdatedItems.map((e) => e.data).toList(),
-        );
-
-        await ProjectService().updateProject(
-          _project!.id,
-          _project!,
-        );
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
   bool _isLoading = false;
 
   @override
@@ -683,5 +595,93 @@ class _ProjectBoardState extends State<ProjectBoard> {
         projectID: _project!.id,
       ),
     );
+  }
+
+  Future<void> _updateData(
+    String fromGroupId,
+    String toGroupId,
+    int fromIndex,
+    int toIndex,
+  ) async {
+    try {
+      if (fromGroupId == group1.id) {
+        final fromGroupController = _controller.getGroupController(fromGroupId);
+        final fromItems = fromGroupController?.groupData.items;
+        final fromUpdatedItems = List<TextItem>.from(fromItems!);
+        _project = _project!.copyWith(
+          todoTasks: fromUpdatedItems.map((e) => e.data).toList(),
+        );
+        await ProjectService().updateProject(
+          _project!.id,
+          _project!,
+        );
+      }
+      if (fromGroupId == group2.id) {
+        final fromGroupController = _controller.getGroupController(fromGroupId);
+        final fromItems = fromGroupController?.groupData.items;
+        final fromUpdatedItems = List<TextItem>.from(fromItems!);
+        _project = _project!.copyWith(
+          onProcessTasks: fromUpdatedItems.map((e) => e.data).toList(),
+        );
+        await ProjectService().updateProject(
+          _project!.id,
+          _project!,
+        );
+      }
+      if (fromGroupId == group3.id) {
+        final fromGroupController = _controller.getGroupController(fromGroupId);
+        final fromItems = fromGroupController?.groupData.items;
+        final fromUpdatedItems = List<TextItem>.from(fromItems!);
+        _project = _project!.copyWith(
+          finishedTasks: fromUpdatedItems.map((e) => e.data).toList(),
+        );
+        await ProjectService().updateProject(
+          _project!.id,
+          _project!,
+        );
+      }
+      if (toGroupId == group3.id) {
+        final toGroupController = _controller.getGroupController(toGroupId);
+        final toItems = toGroupController?.groupData.items;
+        final toUpdatedItems = List<TextItem>.from(toItems!);
+        _project = _project!.copyWith(
+          finishedTasks: toUpdatedItems.map((e) => e.data).toList(),
+        );
+        await ProjectService().updateProject(
+          _project!.id,
+          _project!,
+        );
+      }
+      if (toGroupId == group1.id) {
+        final toGroupController = _controller.getGroupController(toGroupId);
+        final toItems = toGroupController?.groupData.items;
+        final toUpdatedItems = List<TextItem>.from(toItems!);
+
+        _project = _project!.copyWith(
+          todoTasks: toUpdatedItems.map((e) => e.data).toList(),
+        );
+
+        await ProjectService().updateProject(
+          _project!.id,
+          _project!,
+        );
+      }
+      if (toGroupId == group2.id) {
+        final toGroupController = _controller.getGroupController(toGroupId);
+        final toItems = toGroupController?.groupData.items;
+        final toUpdatedItems = List<TextItem>.from(toItems!);
+
+        _project = _project!.copyWith(
+          onProcessTasks: toUpdatedItems.map((e) => e.data).toList(),
+        );
+
+        await ProjectService().updateProject(
+          _project!.id,
+          _project!,
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }
